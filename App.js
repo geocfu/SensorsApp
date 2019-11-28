@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { RecordSensors } from './src/Screens/RecordSensors';
+import TabNavigation from './src/Navigation/TabNavigation';
 
 export default class Main extends Component {
   render() {
     return (
-      <RecordSensors />
+      <TabNavigation />
     );
   }
 }
