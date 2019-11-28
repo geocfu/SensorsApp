@@ -29,7 +29,6 @@ import {
 
 import RNFetchBlob from 'rn-fetch-blob';
 
-
 export class RecordingsScreen extends Component {
   constructor(props) {
     super(props);
@@ -55,7 +54,7 @@ export class RecordingsScreen extends Component {
           showsVerticalScrollIndicator={false}>
           <View
             style={styles.content}>
-
+            
           </View>
         </ScrollView>
       </SafeAreaView>
