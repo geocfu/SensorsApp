@@ -6,7 +6,6 @@ import {
   View,
   PermissionsAndroid,
   StatusBar,
-  AppState,
 } from 'react-native';
 import {
   materialColors,
@@ -98,8 +97,8 @@ export class RecordSensors extends Component {
   getInitialState = () => {
     const initialState = {
       recording: false,
-      sensorIcon: "play-arrow",
-      sensorSubtitleText: "Idle",
+      sensorIcon: "play-arrow",// to remove on refactor
+      sensorSubtitleText: "Idle",// to remove on refactor
 
       snackbarIsVisible: false,
       recordButtonText: "Start Recording",
@@ -117,6 +116,9 @@ export class RecordSensors extends Component {
 
   componentDidMount() {
     this.requestStoragePermission();
+    this.buildFileDirectoryStructure();
+    //for development, to be removed
+    this.props.navigation.navigate("Recordings")
   }
 
   //Get persmission to access devices's storage
@@ -228,8 +230,8 @@ export class RecordSensors extends Component {
                 this.setState({
                   recording: true,
                   snackbarIsVisible: true,
-                  sensorIcon: "pause",
-                  sensorSubtitleText: "Recording",
+                  sensorIcon: "pause",// refacotr
+                  sensorSubtitleText: "Recording",// refactor
                   activityIsDisabled: true,
                   recordButtonText: "Stop Recording",
                   snackbarText: "The recording has started!",

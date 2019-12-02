@@ -1,36 +1,25 @@
-import React from 'react';
+import React, {Context} from 'react';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import {
-  Provider as PaperProvider,
-  DarkTheme
+  withTheme
 } from 'react-native-paper';
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-import { RecordSensors } from '../Screens/RecordSensors';
-import { RecordingsScreen } from '../Screens/RecordingsScreen';
+import Home from "../containers/Home";
+import { RecordSensors } from '../containers/RecordSensors';
+import { RecordingsScreen } from '../containers/RecordingsScreen';
 
-const TabNavigation = () => {
-
-  const theme = {
-    ...DarkTheme,
-    mode: 'adaptive',
-    roundness: 4,
-    colors: {
-      ...DarkTheme.colors,
-      primary: '#2F3A94',
-      accent: '#6979D1',
-    },
-  };
-
+const TabNavigation = props => {
   const Navigation = createAppContainer(
     createBottomTabNavigator(
       {
-        Home: RecordSensors,
+        Home: Home,
         Recordings: RecordingsScreen,
       },
       {
+        // TODO: move icon to a component
         defaultNavigationOptions: ({ navigation }) => ({
           tabBarIcon: ({ focused, horizontal, tintColor }) => {
             const { routeName } = navigation.state;
@@ -46,7 +35,7 @@ const TabNavigation = () => {
           },
         }),
         tabBarOptions: {
-          activeTintColor: theme.colors.accent,
+          activeTintColor: "#6979D1",
           inactiveTintColor: 'gray',
         },
       }
@@ -54,10 +43,8 @@ const TabNavigation = () => {
   );
 
   return (
-    <PaperProvider theme={theme}>
-      <Navigation theme="dark" />
-    </PaperProvider>
+    <Navigation theme="dark" />
   )
 }
 
-export default TabNavigation;
+export default withTheme(TabNavigation);
