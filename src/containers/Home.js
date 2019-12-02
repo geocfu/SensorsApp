@@ -105,15 +105,18 @@ const Home = props => {
   const [dialogText, setDialogText] = useState("");
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
+  const {colors} = props.theme;
+
   useEffect(() => {
     requestStoragePermission();
+    //props.navigation.navigate("Recordings")
   }, []);
 
   //Custom styles
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#121212',
+      backgroundColor: colors.background,
     },
     content: {
       marginTop: 10,

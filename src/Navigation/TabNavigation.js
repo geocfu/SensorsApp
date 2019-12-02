@@ -12,6 +12,9 @@ import { RecordSensors } from '../containers/RecordSensors';
 import { RecordingsScreen } from '../containers/RecordingsScreen';
 
 const TabNavigation = props => {
+
+  const {colors} = props.theme;
+
   const Navigation = createAppContainer(
     createBottomTabNavigator(
       {
@@ -35,7 +38,7 @@ const TabNavigation = props => {
           },
         }),
         tabBarOptions: {
-          activeTintColor: "#6979D1",
+          activeTintColor: colors.accent,
           inactiveTintColor: 'gray',
         },
       }
