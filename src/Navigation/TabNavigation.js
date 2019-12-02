@@ -8,7 +8,7 @@ import {
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import Home from "../containers/Home";
-import { RecordSensors } from '../containers/RecordSensors';
+import Recordings from "../containers/Recordings";
 import { RecordingsScreen } from '../containers/RecordingsScreen';
 
 const TabNavigation = props => {
@@ -19,7 +19,7 @@ const TabNavigation = props => {
     createBottomTabNavigator(
       {
         Home: Home,
-        Recordings: RecordingsScreen,
+        Recordings: Recordings,
       },
       {
         // TODO: move icon to a component
