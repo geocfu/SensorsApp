@@ -107,8 +107,7 @@ const Home = props => {
 
   useEffect(() => {
     requestStoragePermission();
-    buildFileDirectoryStructure();
-  }, [isRecording]);
+  }, []);
 
   //Custom styles
   const styles = StyleSheet.create({
@@ -178,8 +177,6 @@ const Home = props => {
       }, 4000);
       return;
     }
-    //ensure that the structure hierarchy is present
-    buildFileDirectoryStructure();
 
     //No recording is taking place currently, so, we start to record
     //
@@ -188,6 +185,10 @@ const Home = props => {
       .check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
       .then(result => {
         if (result) {
+
+          //ensure that the structure hierarchy is present
+          buildFileDirectoryStructure();
+
           //Check if app is allowed to run in the background, if not, redirect accordingly
           BackgroundJob.isAppIgnoringBatteryOptimization(
             (error, ignoringOptimization) => {

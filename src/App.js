@@ -5,6 +5,8 @@ import {
   DarkTheme
 } from 'react-native-paper';
 
+import 'react-native-gesture-handler';
+
 import TabNavigation from './navigation/TabNavigation';
 
 const App = () => {
