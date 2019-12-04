@@ -34,7 +34,7 @@ const CustomActivity = props => {
   return (
     <View>
       <Title style={styles.title}>
-        Select activity
+        Select Activity
       </Title>
       <RadioButton.Group
         onValueChange={value => {

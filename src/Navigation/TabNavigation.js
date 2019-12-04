@@ -9,7 +9,6 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 
 import Home from "../containers/Home";
 import Recordings from "../containers/Recordings";
-import { RecordingsScreen } from '../containers/RecordingsScreen';
 
 const TabNavigation = props => {
 
@@ -40,6 +39,7 @@ const TabNavigation = props => {
         tabBarOptions: {
           activeTintColor: colors.accent,
           inactiveTintColor: 'gray',
+          swipeEnabled: true,
         },
       }
     )
