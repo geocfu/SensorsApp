@@ -17,7 +17,8 @@ import {
 
 import RNFetchBlob from 'rn-fetch-blob';
 
-import CustomActivity from "../components/CustomActivity";
+import APIKey from "../env";
+
 import CustomDialog from "../components/CustomDialog";
 import CustomModal from "../components/CustomModal";
 import CustomListSection from "../components/CustomListSection";
@@ -30,6 +31,7 @@ const Recordings = props => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [modalText, setModalText] = useState("Recordings");
   const [numberOfRecordings, setNumberOfRecordings] = useState(0);
+  const [numberOfUploads, setNumberOfUploads] = useState(0);
 
 
   const [appState, setAppState] = useState(AppState.currentState);
@@ -37,6 +39,7 @@ const Recordings = props => {
   const { colors } = props.theme;
 
   useEffect(() => {
+    
     AppState.addEventListener('change', updateFileDirectoryStructure);
   });
 
@@ -72,7 +75,7 @@ const Recordings = props => {
       })
       .catch((err) => {
         console.log(err);
-      });
+      })
   }
 
   const updateFileDirectoryStructure = (nextAppState) => {
@@ -81,9 +84,10 @@ const Recordings = props => {
         .then(
           (stats) => {
             if (stats.length > 0) {
-              //update the files in the ui
+              console.log("hello")
+              setNumberOfRecordings(stats.length);
             } else {
-              console.log("folder is empty")
+              setNumberOfRecordings(0);
               //snackbar to inform for folder emptinnes
             }
           }
@@ -104,7 +108,7 @@ const Recordings = props => {
         (stats) => {
           if (stats.length > 0) {
             stats.forEach((value, index) => {
-              this.uploadFile(value.path);
+              uploadRecording(value.path);
             });
           } else {
             console.log("folder is empty")
@@ -123,7 +127,7 @@ const Recordings = props => {
   const uploadRecording = (pathToFile) => {
     RNFetchBlob.fetch('POST', 'https://content.dropboxapi.com/2/files/upload', {
       //add the token to an env file 
-      Authorization: "Bearer VLdlTEdk_2EAAAAAAAAAZNfq1VXNWL98q_jPXFHrFQJJ_4vymJQVogZLiOSDbU-9",
+      Authorization: "Bearer " + APIKey,
       'Dropbox-API-Arg': JSON.stringify({
         path: '/sensorsApp/' + pathToFile.slice(pathToFile.lastIndexOf("/") + 1),
         mode: 'add',
@@ -158,12 +162,13 @@ const Recordings = props => {
           style={styles.content}>
           <CustomListSection
             title={modalText}
-            numberOfRecordings={numberOfRecordings} />
+            numberOfRecordings={numberOfRecordings}
+            numberOfUploads={numberOfUploads} />
           <Button
             style={styles.button}
             icon={uploadButtonIcon}
             mode="contained"
-            onPress={() => { console.log("scanFileDirectoryStructure()") }}>
+            onPress={() => { scanFileDirectoryStructure()}}>
             {uploadButtonText}
           </Button>
           <CustomModal isVisible={modalIsVisible} />

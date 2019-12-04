@@ -27,6 +27,7 @@ import { timer } from 'rxjs';
 import RNFetchBlob from 'rn-fetch-blob';
 import BackgroundJob from 'react-native-background-job';
 import RNDisableBatteryOptimizationsAndroid from 'react-native-disable-battery-optimizations-android';
+import PushNotification from "react-native-push-notification";
 
 import CustomActivity from "../components/CustomActivity";
 import CustomDialog from "../components/CustomDialog";
@@ -105,7 +106,8 @@ const Home = props => {
   const [dialogText, setDialogText] = useState("");
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
-  const {colors} = props.theme;
+  const { colors } = props.theme;
+  const halfHeight = "25%";
 
   useEffect(() => {
     requestStoragePermission();
@@ -123,6 +125,14 @@ const Home = props => {
       marginBottom: 10,
       marginLeft: 10,
       marginRight: 10,
+    },
+    activities: {
+      marginTop: halfHeight,
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignContent: "center",
     },
     button: {
       marginTop: 30,
@@ -161,6 +171,9 @@ const Home = props => {
     if (isRecording) {
       BackgroundJob.cancel({ jobKey: everRunningJobKey });
 
+      // Remove the notification
+      PushNotification.cancelAllLocalNotifications();
+
       //Display an indicator while the recording is being stopped
       setModalIsVisible(true);
       //Catch special occasion where user started the recording and stopped it immediately
@@ -188,7 +201,6 @@ const Home = props => {
       .check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
       .then(result => {
         if (result) {
-
           //ensure that the structure hierarchy is present
           buildFileDirectoryStructure();
 
@@ -197,8 +209,18 @@ const Home = props => {
             (error, ignoringOptimization) => {
               if (ignoringOptimization) {
                 setIsRecording(true);
-                //ensure that the structure hierarchy is present
-                //buildFileDirectoryStructure();
+
+                // Show a notification
+                PushNotification.localNotification({
+                  color: "#6979D1", 
+                  ongoing: true,
+                  priority: "high",
+                  visibility: "public",
+                  importance: "high",
+                  autoCancel: false,
+                  number: '10',
+                  message: "Currently recording",
+                });
 
                 //Create the name of the file that will be used to save this recording's data
                 // File name structure: date - activity . txt
@@ -274,20 +296,23 @@ const Home = props => {
         contentInsetAdjustmentBehavior="automatic">
         <View
           style={styles.content}>
-          <CustomActivity
-            value={value => { setActivity(value) }}
-            isDisabled={activityIsDisabled} />
-          <Button
-            style={styles.button}
-            mode="contained"
-            onPress={() => startRecording()}>
-            {recordButtonText}
-          </Button>
-          <CustomDialog
-            isVisible={dialogIsVisible}
-            onClose={value => { setDialogIsVisible(value) }}
-            title="Error"
-            text={dialogText} />
+          <View
+            style={styles.activities}>
+            <CustomActivity
+              value={value => { setActivity(value) }}
+              isDisabled={activityIsDisabled} />
+            <Button
+              style={styles.button}
+              mode="contained"
+              onPress={() => startRecording()}>
+              {recordButtonText}
+            </Button>
+            <CustomDialog
+              isVisible={dialogIsVisible}
+              onClose={value => { setDialogIsVisible(value) }}
+              title="Error"
+              text={dialogText} />
+          </View>
           <CustomModal isVisible={modalIsVisible} />
         </View>
       </ScrollView>

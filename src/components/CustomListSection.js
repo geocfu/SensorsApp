@@ -18,6 +18,10 @@ const CustomListSection = props => {
         title={props.numberOfRecordings + " recordings found"}
         left={() => <List.Icon color={colors.accent} icon="folder" />}
       />
+      <List.Item
+        title={props.numberOfUploads + " recordings uploaded"}
+        left={() => <List.Icon color={colors.accent} icon="file-upload" />}
+      />
     </List.Section>
   );
 }
