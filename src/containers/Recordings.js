@@ -4,7 +4,6 @@ import {
   StyleSheet,
   ScrollView,
   View,
-  AppState,
   StatusBar,
 } from 'react-native';
 
@@ -16,6 +15,7 @@ import {
 } from 'react-native-paper';
 
 import RNFetchBlob from 'rn-fetch-blob';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import APIKey from "../env";
 
@@ -30,18 +30,16 @@ const Recordings = props => {
   const [uploadButtonIcon, setUploadButtonIcon] = useState("file-upload");
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [modalText, setModalText] = useState("Recordings");
+  const [uuid, setUuid] = useState(null);
+
   const [numberOfRecordings, setNumberOfRecordings] = useState(0);
   const [numberOfUploads, setNumberOfUploads] = useState(0);
-
-
-  const [appState, setAppState] = useState(AppState.currentState);
 
   const { colors } = props.theme;
 
   useEffect(() => {
-    
-    AppState.addEventListener('change', updateFileDirectoryStructure);
-  });
+    readUuidFromStorage()
+  }, []);
 
   //Custom styles
   const styles = StyleSheet.create({
@@ -61,6 +59,31 @@ const Recordings = props => {
     },
   });
 
+  const readUuidFromStorage = () => {
+    AsyncStorage.getItem("@uuid")
+      .then(value => {
+        if (value) {
+          setUuid(value);
+        } else {
+          writeUuidToStorage(generateUuid());
+        }
+      });
+  };
+
+  const writeUuidToStorage = newUuid => {
+    AsyncStorage.setItem("@uuid", newUuid)
+      .then(() => {
+        setUuid(newUuid)
+      });
+  };
+
+  const generateUuid = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
   const buildFileDirectoryStructure = () => {
     RNFetchBlob.fs.isDir(RNFetchBlob.fs.dirs.DownloadDir + "/sensorsApp/")
       .then((isDir) => {
@@ -78,28 +101,12 @@ const Recordings = props => {
       })
   }
 
-  const updateFileDirectoryStructure = (nextAppState) => {
-    if (appState.match(/inactive|background/) && nextAppState === 'active') {
-      RNFetchBlob.fs.lstat(RNFetchBlob.fs.dirs.DownloadDir + "/sensorsApp/")
-        .then(
-          (stats) => {
-            if (stats.length > 0) {
-              console.log("hello")
-              setNumberOfRecordings(stats.length);
-            } else {
-              setNumberOfRecordings(0);
-              //snackbar to inform for folder emptinnes
-            }
-          }
-        )
-        .catch(
-          (err) => {
-            //raise a warning dialog
-            console.log(err)
-          }
-        )
+  const initiateUploading = () => {
+    if (uuid) {
+      //already exists
+      //move on uploading
+      scanFileDirectoryStructure();
     }
-    setAppState(nextAppState);
   }
 
   const scanFileDirectoryStructure = () => {
@@ -107,6 +114,7 @@ const Recordings = props => {
       .then(
         (stats) => {
           if (stats.length > 0) {
+            writeUuidToStorage(generateUuid());
             stats.forEach((value, index) => {
               uploadRecording(value.path);
             });
@@ -129,16 +137,18 @@ const Recordings = props => {
       //add the token to an env file 
       Authorization: "Bearer " + APIKey,
       'Dropbox-API-Arg': JSON.stringify({
-        path: '/sensorsApp/' + pathToFile.slice(pathToFile.lastIndexOf("/") + 1),
-        mode: 'add',
+        path: "/sensorsApp/" + uuid + "/" + pathToFile.slice(pathToFile.lastIndexOf("/") + 1),
+        mode: "add",
         autorename: true,
         mute: false,
         //needs confirmation
         strict_conflict: true,
       }),
-      'Content-Type': 'application/octet-stream',
+      'Content-Type': "application/octet-stream",
     }, RNFetchBlob.wrap(pathToFile))
-      .then((res) => { })
+      .then((res) => {
+        console.log(res.text())
+      })
       .catch((err) => {
         console.log(err)
       })
@@ -168,8 +178,15 @@ const Recordings = props => {
             style={styles.button}
             icon={uploadButtonIcon}
             mode="contained"
-            onPress={() => { scanFileDirectoryStructure()}}>
+            onPress={() => { initiateUploading() }}>
             {uploadButtonText}
+          </Button>
+          <Button
+            style={styles.button}
+            icon="delete"
+            mode="contained"
+            onPress={() => { AsyncStorage.clear().then(); setUuid(null) }}>
+            Clear AsyncStorage
           </Button>
           <CustomModal isVisible={modalIsVisible} />
         </View>

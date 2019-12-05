@@ -39,7 +39,6 @@ const TabNavigation = props => {
         tabBarOptions: {
           activeTintColor: colors.accent,
           inactiveTintColor: 'gray',
-          swipeEnabled: true,
         },
       }
     )
