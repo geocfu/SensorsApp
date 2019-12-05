@@ -212,7 +212,7 @@ const Home = props => {
 
                 // Show a notification
                 PushNotification.localNotification({
-                  color: "#6979D1", 
+                  color: "#6979D1",
                   ongoing: true,
                   priority: "high",
                   visibility: "public",
@@ -313,7 +313,9 @@ const Home = props => {
               title="Error"
               text={dialogText} />
           </View>
-          <CustomModal isVisible={modalIsVisible} />
+          <CustomModal
+            isVisible={modalIsVisible}
+            title="Please Wait..." />
         </View>
       </ScrollView>
       <CustomSnackbar

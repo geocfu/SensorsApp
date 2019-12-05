@@ -26,20 +26,19 @@ import CustomSnackbar from "../components/CustomSnackbar";
 
 const Recordings = props => {
 
-  const [uploadButtonText, setUploadButtonText] = useState("Upload Recordings");
-  const [uploadButtonIcon, setUploadButtonIcon] = useState("file-upload");
   const [modalIsVisible, setModalIsVisible] = useState(false);
-  const [modalText, setModalText] = useState("Recordings");
+  const [snackbarIsVisible, setSnackbarIsVisible] = useState(false);
+  const [snackbarText, setSnackbarText] = useState("");
   const [uuid, setUuid] = useState(null);
-
-  const [numberOfRecordings, setNumberOfRecordings] = useState(0);
-  const [numberOfUploads, setNumberOfUploads] = useState(0);
 
   const { colors } = props.theme;
 
   useEffect(() => {
-    readUuidFromStorage()
+    buildFileDirectoryStructure();
+    readUuidFromStorage();
   }, []);
+
+  const halfHeight = "50%"
 
   //Custom styles
   const styles = StyleSheet.create({
@@ -48,7 +47,7 @@ const Recordings = props => {
       backgroundColor: colors.background,
     },
     content: {
-      marginTop: 10,
+      marginTop: halfHeight,
       marginBottom: 10,
       marginLeft: 10,
       marginRight: 10,
@@ -82,7 +81,7 @@ const Recordings = props => {
       let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
-  }
+  };
 
   const buildFileDirectoryStructure = () => {
     RNFetchBlob.fs.isDir(RNFetchBlob.fs.dirs.DownloadDir + "/sensorsApp/")
@@ -99,28 +98,26 @@ const Recordings = props => {
       .catch((err) => {
         console.log(err);
       })
-  }
+  };
 
   const initiateUploading = () => {
     if (uuid) {
-      //already exists
-      //move on uploading
-      scanFileDirectoryStructure();
+      scanAndUploadFileDirectoryStructure();
     }
-  }
+  };
 
-  const scanFileDirectoryStructure = () => {
+  const scanAndUploadFileDirectoryStructure = () => {
     RNFetchBlob.fs.lstat(RNFetchBlob.fs.dirs.DownloadDir + "/sensorsApp/")
       .then(
         (stats) => {
           if (stats.length > 0) {
-            writeUuidToStorage(generateUuid());
+            setModalIsVisible(true);
             stats.forEach((value, index) => {
-              uploadRecording(value.path);
+              uploadRecording(value.path, index, stats.length);
             });
           } else {
-            console.log("folder is empty")
-            //snackbar to inform for folder emptinnes
+            setSnackbarText("No recordings found.")
+            setSnackbarIsVisible(true);
           }
         }
       )
@@ -130,9 +127,9 @@ const Recordings = props => {
           console.log(err)
         }
       )
-  }
+  };
 
-  const uploadRecording = (pathToFile) => {
+  const uploadRecording = (pathToFile, index, length) => {
     RNFetchBlob.fetch('POST', 'https://content.dropboxapi.com/2/files/upload', {
       //add the token to an env file 
       Authorization: "Bearer " + APIKey,
@@ -146,13 +143,18 @@ const Recordings = props => {
       }),
       'Content-Type': "application/octet-stream",
     }, RNFetchBlob.wrap(pathToFile))
-      .then((res) => {
-        console.log(res.text())
+      .then(() => {
+        if (index + 1 == length) {
+          setModalIsVisible(false);
+        }
+        RNFetchBlob.fs.unlink(pathToFile)
+          .then(() => { })
+          .catch((err) => { })
       })
       .catch((err) => {
         console.log(err)
       })
-  }
+  };
 
   return (
     <SafeAreaView
@@ -170,29 +172,24 @@ const Recordings = props => {
         contentInsetAdjustmentBehavior="automatic">
         <View
           style={styles.content}>
-          <CustomListSection
-            title={modalText}
-            numberOfRecordings={numberOfRecordings}
-            numberOfUploads={numberOfUploads} />
           <Button
             style={styles.button}
-            icon={uploadButtonIcon}
+            icon="file-upload"
             mode="contained"
             onPress={() => { initiateUploading() }}>
-            {uploadButtonText}
+            Upload Recordings
           </Button>
-          <Button
-            style={styles.button}
-            icon="delete"
-            mode="contained"
-            onPress={() => { AsyncStorage.clear().then(); setUuid(null) }}>
-            Clear AsyncStorage
-          </Button>
-          <CustomModal isVisible={modalIsVisible} />
+          <CustomModal
+            isVisible={modalIsVisible}
+            title="Uploading" />
         </View>
       </ScrollView>
+      <CustomSnackbar
+        isVisible={snackbarIsVisible}
+        onClose={value => { setSnackbarIsVisible(value) }}
+        text={snackbarText} />
     </SafeAreaView>
   );
-}
+};
 
 export default withTheme(Recordings);

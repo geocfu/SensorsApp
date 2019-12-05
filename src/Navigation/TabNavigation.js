@@ -1,4 +1,4 @@
-import React, {Context} from 'react';
+import React from 'react';
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import {
@@ -12,7 +12,7 @@ import Recordings from "../containers/Recordings";
 
 const TabNavigation = props => {
 
-  const {colors} = props.theme;
+  const { colors } = props.theme;
 
   const Navigation = createAppContainer(
     createBottomTabNavigator(

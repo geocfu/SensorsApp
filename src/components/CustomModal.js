@@ -5,6 +5,7 @@ import {
   Portal,
   Modal,
   Title,
+  Text,
   ActivityIndicator,
   withTheme,
 } from 'react-native-paper';
@@ -19,7 +20,8 @@ const CustomModal = props => {
           dismissable={false}>
           <Title
             style={{ textAlign: "center" }}>
-            Please Wait...{"\n"}
+            {props.title}
+            {"\n"}
           </Title>
           <ActivityIndicator
             animating={true}
