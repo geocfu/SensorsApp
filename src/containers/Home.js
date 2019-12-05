@@ -111,7 +111,6 @@ const Home = props => {
 
   useEffect(() => {
     requestStoragePermission();
-    props.navigation.navigate("Recordings")
   }, []);
 
   //Custom styles
